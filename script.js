@@ -1,10 +1,7 @@
-let currentOptions = [];
 let allRecords = [];
 let sessionID = "";
 let columns = [];
 let dropdowns = [];
-let types = [];
-const typeAND = "AND", typeOR = 'OR';
 
 function showError(msg) {
   const el = document.getElementById('error');
@@ -19,11 +16,10 @@ function showError(msg) {
 function updateDropdown(options, idx) {
   const uniqOptions = [""].concat(uniq(options).sort());
   const dropdown = document.getElementById(`dropdown${idx}`);
-  dropdown.classList.remove('hiddenItem');
 
   let currentValue = uniqOptions.includes(dropdown.value) ? dropdown.value : undefined;
   if (currentValue === undefined && sessionID.length > 0) {
-    const selection = sessionStorage.getItem(`${sessionID}_Dropdownfilter_Item${idx}`);
+    const selection = sessionStorage.getItem(`${sessionID}_Dropdown_Item${idx}`);
     if (selection?.length > 0) {
       currentValue = selection;
     }
@@ -32,9 +28,8 @@ function updateDropdown(options, idx) {
   dropdown.innerHTML = '';
   if (uniqOptions.length === 0) {
     const optionElement = document.createElement('option');
-    optionElement.textContent = 'No options available';
+    optionElement.textContent = 'Aucune option disponible';
     dropdown.appendChild(optionElement);
-    grist.setSelectedRows(null);
   } else {
     uniqOptions.forEach((option) => {
       const optionElement = document.createElement('option');
@@ -43,14 +38,12 @@ function updateDropdown(options, idx) {
       if (String(option) === currentValue) optionElement.setAttribute('selected', '');
       dropdown.appendChild(optionElement);
     });
-
-    selectRows();
   }
 }
 
 function selectRows() {
   const selectedValues = dropdowns.map(dropdown => dropdown.value);
-  const selectedTypes = types;
+  const selectedColumns = dropdowns.map((_, idx) => columns[idx]);
 
   if (selectedValues.every(value => !value)) {
     grist.setSelectedRows(null);
@@ -58,68 +51,69 @@ function selectRows() {
   }
 
   let rows = [...allRecords];
-  for (let i = 0; i < selectedValues.length; i++) {
-    const value = selectedValues[i];
-    if (!value) continue;
-
-    const column = columns[i];
-    if (i === 0) {
+  selectedValues.forEach((value, idx) => {
+    if (value) {
+      const column = selectedColumns[idx];
       rows = rows.filter(item => String(item[column]) === value);
-    } else {
-      const type = selectedTypes[i - 1];
-      if (type === typeOR) {
-        const newRows = allRecords.filter(item => String(item[column]) === value);
-        rows = [...new Set([...rows, ...newRows])];
-      } else {
-        rows = rows.filter(item => String(item[column]) === value);
-      }
     }
-  }
+  });
 
   rows = rows.map(({ id }) => id);
   grist.setSelectedRows(rows);
 
   if (sessionID.length > 0) {
     selectedValues.forEach((value, idx) => {
-      if (value) sessionStorage.setItem(`${sessionID}_Dropdownfilter_Item${idx + 1}`, value);
+      if (value) sessionStorage.setItem(`${sessionID}_Dropdown_Item${idx + 1}`, value);
     });
   }
 }
 
-function addFilter() {
+function addDropdown() {
   const idx = dropdowns.length + 1;
+
+  const dropdownGroup = document.createElement('div');
+  dropdownGroup.className = 'dropdown-group';
+
   const dropdown = document.createElement('select');
   dropdown.id = `dropdown${idx}`;
+  dropdown.className = 'dropdown';
   dropdown.addEventListener('change', selectRows);
 
-  const typeDropdown = document.createElement('span');
-  typeDropdown.id = `type${idx}`;
-  typeDropdown.innerHTML = typeAND;
-  typeDropdown.addEventListener('click', () => {
-    typeDropdown.innerHTML = (typeDropdown.innerHTML === typeAND) ? typeOR : typeAND;
-    selectRows();
-  });
+  const removeButton = document.createElement('button');
+  removeButton.className = 'remove-dropdown';
+  removeButton.innerHTML = '×';
+  removeButton.onclick = () => removeDropdown(idx);
 
-  document.getElementById('filters').appendChild(dropdown);
-  document.getElementById('filters').appendChild(typeDropdown);
+  dropdownGroup.appendChild(dropdown);
+  dropdownGroup.appendChild(removeButton);
+
+  document.getElementById('dropdowns').appendChild(dropdownGroup);
 
   dropdowns.push(dropdown);
-  types.push(typeAND);
-  updateDropdown([], idx);
+
+  if (columns.length >= idx) {
+    const options = allRecords.map(record => record[columns[idx - 1]]).filter(option => option !== null && option !== undefined);
+    updateDropdown(options, idx);
+  }
 }
 
-function removeFilter(idx) {
-  if (dropdowns.length <= 1) return;
+function removeDropdown(idx) {
+  if (dropdowns.length <= 1) {
+    showError("Il doit y avoir au moins un menu déroulant.");
+    return;
+  }
 
-  const dropdown = document.getElementById(`dropdown${idx}`);
-  const typeElement = document.getElementById(`type${idx}`);
-
-  dropdown.remove();
-  typeElement.remove();
+  const dropdownGroup = document.querySelectorAll('.dropdown-group')[idx - 1];
+  dropdownGroup.remove();
 
   dropdowns.splice(idx - 1, 1);
-  types.splice(idx - 2, 1);
+  selectRows();
+}
 
+function clearsearch() {
+  dropdowns.forEach(dropdown => {
+    dropdown.value = "";
+  });
   selectRows();
 }
 
@@ -130,11 +124,17 @@ function uniq(a) {
   });
 }
 
+function saveOption() {
+  const sid = document.getElementById("sessionid").value;
+  grist.widgetApi.setOption('sessionid', sid);
+}
+
 function initGrist() {
   grist.ready({
     columns: [
-      { name: "OptionsToSelect", title: 'Options to select', type: 'Any' },
-      { name: "OptionsToSelect2", title: '2nd options to select', type: 'Any', optional: true },
+      { name: "OptionsToSelect", title: 'Options à sélectionner', type: 'Any' },
+      { name: "OptionsToSelect2", title: 'Deuxième option', type: 'Any', optional: true },
+      // Ajoutez d'autres colonnes ici si nécessaire
     ],
     requiredAccess: 'read table',
     allowSelectBy: true,
@@ -153,17 +153,22 @@ function initGrist() {
 
   grist.onRecords((records, mappings) => {
     if (!records || records.length === 0) {
-      updateDropdown([]);
-      grist.setSelectedRows(null);
+      showError("Aucun enregistrement reçu.");
       return;
     }
 
     allRecords = records;
     columns = Object.keys(mappings).filter(key => key.startsWith('OptionsToSelect'));
 
-    columns.forEach((column, idx) => {
-      const options = records.map(record => record[column]).filter(option => option !== null && option !== undefined);
-      updateDropdown(options, idx + 1);
+    if (dropdowns.length === 0) {
+      addDropdown();
+    }
+
+    dropdowns.forEach((dropdown, idx) => {
+      if (columns.length > idx) {
+        const options = records.map(record => record[columns[idx]]).filter(option => option !== null && option !== undefined);
+        updateDropdown(options, idx + 1);
+      }
     });
 
     selectRows();

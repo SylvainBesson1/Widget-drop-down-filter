@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Drop-down Widget</title>
+  <title>Dynamic Dropdown Widget</title>
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
   <style>
     body, html {
@@ -16,40 +16,27 @@
     #container {
       position: relative;
       height: 100%;
+      padding: 10px;
     }
-    #filters {
+    #dropdowns {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 2px;
-      background-color: var(--grist-theme-page-panels-main-panel-bg);
-      border: 1px solid var(--grist-theme-table-body-border);
+      gap: 5px;
+      margin-bottom: 10px;
     }
-    .filter-group {
+    .dropdown-group {
       display: flex;
       align-items: center;
-      margin-right: 5px;
     }
     .dropdown {
       width: 150px;
       box-sizing: border-box;
-      margin: 0;
-      padding: 2px;
-      height: 100%;
+      padding: 5px;
+      height: 30px;
       background-color: var(--grist-theme-page-panels-main-panel-bg);
       border: 1px solid var(--grist-theme-table-body-border);
       color: var(--grist-theme-text);
-    }
-    .tag {
-      background-color: lightgray;
-      font-size: small;
-      border-radius: 4px;
-      border-color: transparent;
-      padding: 2px 5px;
-      margin: 0 2px;
-      cursor: pointer;
     }
     #error {
       display: none;
@@ -57,45 +44,47 @@
       top: 0;
       right: 0;
       width: 50%;
-      height: 100%;
       background: rgba(208, 2, 27, 0.8);
       color: white;
-      padding: 2px;
+      padding: 5px;
       font-size: 12px;
-      overflow-y: auto;
       box-sizing: border-box;
     }
-    .dropdown:focus {
-      outline: 2px solid var(--grist-theme-cursor);
-    }
-    .hiddenItem {
-      display: none;
-    }
-    #addFilter {
+    #addDropdown {
       background-color: var(--grist-theme-primary);
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 2px 5px;
+      padding: 5px 10px;
       cursor: pointer;
+      margin-right: 5px;
     }
     #clear {
       background-color: var(--grist-theme-danger);
       color: white;
       border: none;
       border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .remove-dropdown {
+      background-color: var(--grist-theme-danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
       padding: 2px 5px;
       cursor: pointer;
+      margin-left: 5px;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="filters">
-      <!-- Les filtres seront ajoutés ici dynamiquement -->
+    <div id="dropdowns">
+      <!-- Les menus déroulants seront ajoutés ici dynamiquement -->
     </div>
     <div>
-      <button id="addFilter" onclick="addFilter()">Ajouter un filtre</button>
+      <button id="addDropdown" onclick="addDropdown()">Ajouter un menu déroulant</button>
       <button id="clear" onclick="clearsearch()">Effacer</button>
     </div>
     <div id="error"></div>
