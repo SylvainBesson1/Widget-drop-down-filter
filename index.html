@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Drop-down Widget</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--grist-theme-page-bg);
+      color: var(--grist-theme-text);
+    }
+    #container {
+      position: relative;
+      height: 100%;
+    }
+    #filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 2px;
+      background-color: var(--grist-theme-page-panels-main-panel-bg);
+      border: 1px solid var(--grist-theme-table-body-border);
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      margin-right: 5px;
+    }
+    .dropdown {
+      width: 150px;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 2px;
+      height: 100%;
+      background-color: var(--grist-theme-page-panels-main-panel-bg);
+      border: 1px solid var(--grist-theme-table-body-border);
+      color: var(--grist-theme-text);
+    }
+    .tag {
+      background-color: lightgray;
+      font-size: small;
+      border-radius: 4px;
+      border-color: transparent;
+      padding: 2px 5px;
+      margin: 0 2px;
+      cursor: pointer;
+    }
+    #error {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: rgba(208, 2, 27, 0.8);
+      color: white;
+      padding: 2px;
+      font-size: 12px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .dropdown:focus {
+      outline: 2px solid var(--grist-theme-cursor);
+    }
+    .hiddenItem {
+      display: none;
+    }
+    #addFilter {
+      background-color: var(--grist-theme-primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+    #clear {
+      background-color: var(--grist-theme-danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="filters">
+      <!-- Les filtres seront ajoutés ici dynamiquement -->
+    </div>
+    <div>
+      <button id="addFilter" onclick="addFilter()">Ajouter un filtre</button>
+      <button id="clear" onclick="clearsearch()">Effacer</button>
+    </div>
+    <div id="error"></div>
+  </div>
+  <div id="config" style="display: none;">
+    <label>Session ID:</label>
+    <input type="text" id="sessionid">
+    <button id="save" onclick="saveOption()">Appliquer</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
