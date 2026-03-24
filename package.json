@@ -1,12 +1,12 @@
 {
-  "name": "@SylvainBesson/widget-drop-down-filter",
+  "name": "@SylvainBesson1/widget-drop-down-filter",
   "description": "Simple drop-down widget to filter other wigets.",
-  "homePage": "https://github.com/SylvainBesson1/grist-widget",
-  "version": "1.2",
+  "homePage": "https://github.com/SylvainBesson1/Widget-drop-down-filter",
+  "version": "0.1",
   "grist": {
     "name": "Drop-down Widget",
-    "url": "https://SylvainBesson1.github.io/grist-widget/drop-down-filter/index.html",
-    "widgetId": "@SylvainBesson1/widget-drop-down-filter",
+    "url": "https://sylvainbesson1.github.io/Widget-drop-down-filter/index.html",
+    "widgetId": "@sylvainbesson1/widget-drop-down-filter",
     "published": true,
     "accessLevel": "read table",
     "renderAfterReady": true,
