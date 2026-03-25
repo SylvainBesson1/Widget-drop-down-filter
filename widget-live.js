@@ -58,9 +58,10 @@ function populateFilters(records) {
     while(sel.options.length > 1) sel.remove(1);
   });
 
-  const licences = [...new Set(records.map(r => getValue(r,"Licence")))].filter(Boolean);
-  const gratuits = [...new Set(records.map(r => getValue(r,"Gratuit")))].filter(Boolean);
-  const etats = [...new Set(records.map(r => getValue(r,"Etat_completion")))].filter(Boolean);
+  // Récupérer les valeurs uniques, avec fallback "N/A"
+  const licences = [...new Set(records.map(r => getValue(r,"Licence") || "N/A"))];
+  const gratuits = [...new Set(records.map(r => getValue(r,"Gratuit") || "N/A"))];
+  const etats = [...new Set(records.map(r => getValue(r,"Etat_completion") || "N/A"))];
 
   licences.forEach(v => licenceFilter.add(new Option(v,v)));
   gratuits.forEach(v => gratuitFilter.add(new Option(v,v)));
