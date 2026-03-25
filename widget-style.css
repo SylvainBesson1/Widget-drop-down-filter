@@ -1,0 +1,44 @@
+/* ================= GLOBAL ================= */
+body, html {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ================= FILTERS ================= */
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+select, input {
+  padding: 5px 8px;
+  font-size: 14px;
+}
+
+/* ================= CARDS ================= */
+.card {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+}
+
+/* ================= BADGES ================= */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  color: white;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+/* Couleurs badges */
+.bg-green { background-color: #28a745; }
+.bg-yellow { background-color: #ffc107; }
+.bg-red { background-color: #dc3545; }
+.bg-cyan { background-color: #17a2b8; }
+.bg-orange { background-color: #fd7e14; }

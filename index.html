@@ -1,99 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Dynamic Dropdown Widget</title>
-  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background-color: var(--grist-theme-page-bg);
-      color: var(--grist-theme-text);
-    }
-    #container {
-      position: relative;
-      height: 100%;
-      padding: 10px;
-    }
-    #dropdowns {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 5px;
-      margin-bottom: 10px;
-    }
-    .dropdown-group {
-      display: flex;
-      align-items: center;
-    }
-    .dropdown {
-      width: 150px;
-      box-sizing: border-box;
-      padding: 5px;
-      height: 30px;
-      background-color: var(--grist-theme-page-panels-main-panel-bg);
-      border: 1px solid var(--grist-theme-table-body-border);
-      color: var(--grist-theme-text);
-    }
-    #error {
-      display: none;
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 50%;
-      background: rgba(208, 2, 27, 0.8);
-      color: white;
-      padding: 5px;
-      font-size: 12px;
-      box-sizing: border-box;
-    }
-    #addDropdown {
-      background-color: var(--grist-theme-primary);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-      margin-right: 5px;
-    }
-    #clear {
-      background-color: var(--grist-theme-danger);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-    .remove-dropdown {
-      background-color: var(--grist-theme-danger);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 2px 5px;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filtre Logiciels</title>
+
+  <!-- Lien vers le CSS séparé -->
+  <link rel="stylesheet" href="https://sylvainbesson1.github.io/Widget-drop-down-filter/widget-style.css">
 </head>
 <body>
-  <div id="container">
-    <div id="dropdowns">
-      <!-- Les menus déroulants seront ajoutés ici dynamiquement -->
+
+  <div id="widget-root">
+    <!-- Header -->
+    <h3>Filtres Personnalisés</h3>
+
+    <!-- Conteneur filtres -->
+    <div id="filters">
+      <input type="text" id="search-input" placeholder="Recherche...">
+      <select id="licence-filter">
+        <option value="">Toutes les licences</option>
+      </select>
+      <select id="gratuit-filter">
+        <option value="">Tous</option>
+      </select>
+      <select id="etat-filter">
+        <option value="">Tous</option>
+      </select>
     </div>
-    <div>
-      <button id="addDropdown" onclick="addDropdown()">Ajouter un menu déroulant</button>
-      <button id="clear" onclick="clearsearch()">Effacer</button>
-    </div>
-    <div id="error"></div>
+
+    <!-- Résultats -->
+    <div id="results"></div>
   </div>
-  <div id="config" style="display: none;">
-    <label>Session ID:</label>
-    <input type="text" id="sessionid">
-    <button id="save" onclick="saveOption()">Appliquer</button>
-  </div>
-  <script src="script.js"></script>
+
+  <!-- JS externe -->
+  <script src="https://sylvainbesson1.github.io/Widget-drop-down-filter/widget-live.js"></script>
+
 </body>
 </html>
