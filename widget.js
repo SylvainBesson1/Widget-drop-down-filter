@@ -7,27 +7,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectColumns = {};        
     let selectEls = {};
 
-    async function fetchColumnsAndTypes() {
-      // Récupérer la structure des colonnes depuis Grist
-      const tableInfo = await grist.docApi.fetchSelectedTable();
-      const columns = tableInfo.columns;
+   async function fetchColumnsAndTypes() {
+      try {
+        const tableInfo = await grist.docApi.fetchSelectedTable();
+        console.log("Structure de la table :", tableInfo); // Affiche la structure complète pour débogage
 
-        // Classer les colonnes selon leur type
+        // Vérifier si 'columns' existe dans la réponse
+        if (!tableInfo || !tableInfo.columns) {
+          console.error("La propriété 'columns' est introuvable dans la réponse de l'API.");
+          return;
+        }
+
+        const columns = tableInfo.columns;
         columns.forEach(col => {
           const colName = col.id;
           const colType = col.type;
 
-          // Déterminer si la colonne est de type "choix unique/référence unique" ou "choix multiples/référence multiples"
-          if (colType === 'Choice' || colType === 'ChoiceList' || colType === 'Reference' || colType === 'ReferenceList') {
-            if (colType === 'Choice' || colType === 'Reference') {
-              // Colonne de type choix unique ou référence unique
-              selectColumns[colName] = col.label || colName;
-            } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
-              // Colonne de type choix multiples ou référence multiples
-              tagColumns[colName] = col.label || colName;
-            }
+          // Classer les colonnes selon leur type
+          if (colType === 'Choice' || colType === 'Reference') {
+            selectColumns[colName] = col.label || colName;
+          } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
+            tagColumns[colName] = col.label || colName;
           }
         });
+
+        console.log("Colonnes de type 'select' :", selectColumns);
+        console.log("Colonnes de type 'tag' :", tagColumns);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des colonnes :", error);
+      }
     }
 
     const tagContainer = document.getElementById('tag-filters');
@@ -46,6 +54,25 @@ document.addEventListener('DOMContentLoaded', () => {
       tags: true,
       ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
     };
+
+    function inferColumnTypes(records) {
+      const sampleRecord = records[0];
+      if (!sampleRecord) return;
+
+      Object.keys(sampleRecord).forEach(colName => {
+        const sampleValue = sampleRecord[colName];
+
+        // Détecter les types de colonnes (simplifié)
+        if (Array.isArray(sampleValue)) {
+          tagColumns[colName] = colName; // Supposons que les tableaux sont des "tags"
+        } else if (typeof sampleValue === 'string' || typeof sampleValue === 'number') {
+          selectColumns[colName] = colName; // Supposons que les valeurs simples sont des "selects"
+        }
+      });
+
+      console.log("Colonnes de type 'select' (inférées) :", selectColumns);
+      console.log("Colonnes de type 'tag' (inférées) :", tagColumns);
+    }
 
     function countValues(records, col) {
       const counts = {};
@@ -317,13 +344,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     globalSearch.addEventListener('input', applyFilters);
 
-    grist.onRecords(async (records) => {
-    allRecords = records;
-    await fetchColumnsAndTypes(); // Récupérer les colonnes et leurs types
-    renderTags(records);
-    renderSelects(records);
-    // Forcer l'affichage de tous les résultats au démarrage
-    resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
-    grist.setSelectedRows(allRecords.map(r => r.id));
-  });
+    grist.onRecords((records) => {
+      allRecords = records;
+      inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
+      renderTags(records);
+      renderSelects(records);
+      resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
+      grist.setSelectedRows(allRecords.map(r => r.id));
+    });
 });
