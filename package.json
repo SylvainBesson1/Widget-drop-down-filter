@@ -8,7 +8,7 @@
     "url": "https://sylvainbesson1.github.io/Widget-drop-down-filter/index.html",
     "widgetId": "@sylvainbesson1/widget-drop-down-filter",
     "published": true,
-    "accessLevel": "read table",
+    "accessLevel": "full",
     "renderAfterReady": true,
     "description": "Display a drop-down menu with options from a column to filter other widget with the selected option.",
     "authors": [

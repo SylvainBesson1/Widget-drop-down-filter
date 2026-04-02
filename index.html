@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Filtre Logiciels</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtres outils 🪪</title>
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="widget-style.css">
+     <script src="widget.js"></script> 
+  </head>
 
-  <!-- Lien vers le CSS séparé -->
-  <link rel="stylesheet" href="https://sylvainbesson1.github.io/Widget-drop-down-filter/widget-style.css">
-</head>
-<body>
-
-  <div id="widget-root">
-    <!-- Header -->
-    <h3>Filtres Personnalisés</h3>
-
-    <!-- Conteneur filtres -->
-    <div id="filters">
-      <input type="text" id="search-input" placeholder="Recherche...">
-      <select id="licence-filter">
-        <option value="">Toutes les licences</option>
-      </select>
-      <select id="gratuit-filter">
-        <option value="">Tous</option>
-      </select>
-      <select id="etat-filter">
-        <option value="">Tous</option>
-      </select>
+  <body>
+    <div id="filters-actions" class="flex gap-3 mt-4">
+      <button id="manage-filters-btn" style="background-color:#2B7FFF; color:#ffffff; padding:10px 16px; border-radius:12px; font-weight:600; cursor:pointer;">
+        <i class="fas fa-filter"></i> Gérer les filtres
+      </button>
+      <button id="reset-filters" style="background-color:#e5e7eb; color:#374151; padding:10px 16px; border-radius:12px; font-weight:600; cursor:pointer;">
+       <i class="fas fa-undo"></i> Réinitialiser
+      </button>
+      <div id="results-count">🔢 Résultats: 0</div>
     </div>
 
-    <!-- Résultats -->
-    <div id="results"></div>
-  </div>
-
-  <!-- JS externe -->
-  <script src="https://sylvainbesson1.github.io/Widget-drop-down-filter/widget-live.js"></script>
-
-</body>
+    <!-- Modale pour gérer les filtres -->
+    <div id="filter-modal" class="modal">
+      <div class="modal-content">
+        <h3 style="margin-top:0; font-size:16px; font-weight:600; margin-bottom:15px;">Sélectionner les filtres à afficher</h3>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+          <button id="select-all" style="background:#e5e7eb; color:#374151; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; font-size:12px;">Tout sélectionner</button>
+          <button id="deselect-all" style="background:#e5e7eb; color:#374151; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; font-size:12px;">Tout désélectionner</button>
+        </div>
+        <div id="filter-checkboxes" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
+          <button id="close-modal" style="background:#e5e7eb; color:#374151; padding:8px 16px; border-radius:8px; border:none; cursor:pointer;">Fermer</button>
+        </div>
+      </div>
+    </div>
+=
+    <div id="filters-container">
+      <input id="global-search" placeholder="Recherche globale..."/>
+      <div id="tag-filters"></div>
+      <div id="dynamic-filters"></div>
+    </div>
+  </body>
 </html>
