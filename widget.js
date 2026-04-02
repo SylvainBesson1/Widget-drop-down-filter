@@ -24,12 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
    async function fetchColumnsAndTypes() {
       try {
         const tableInfo = await grist.docApi.fetchSelectedTable();
-        if (!tableInfo || !tableInfo.columns) {
-          console.error("La propriété 'columns' est introuvable dans la réponse de l'API.");
+        if (!tableInfo || !tableInfo.fields) {
+          console.error("La propriété 'fields' est introuvable dans la réponse de l'API.");
           return;
         }
 
-        const columns = tableInfo.columns;
+        const columns = tableInfo.fields;
         columns.forEach(col => {
           const colName = col.id;
           const colType = col.type;
