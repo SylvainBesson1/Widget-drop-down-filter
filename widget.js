@@ -247,16 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return sel;
     }
 
-    function restoreState() {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      selectedTags = saved.selectedTags || {};
-      visibleFilters = saved.visibleFilters || {
-        tags: true,
-        ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
-      };
-      // Ne pas restaurer les sélections des listes au démarrage
-      updateFilterVisibility();
-    }
+    
 
     function updateFilterVisibility() {
       const tagFilters = document.getElementById('tag-filters');
@@ -344,6 +335,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     globalSearch.addEventListener('input', applyFilters);
 
+    function restoreState() {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          selectedTags = saved.selectedTags || {};
+          visibleFilters = saved.visibleFilters || {
+            tags: true,
+            ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+          };
+          // Ne pas restaurer les sélections des listes au démarrage
+          updateFilterVisibility();
+        }
     grist.onRecords((records) => {
       allRecords = records;
       inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
@@ -351,5 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderSelects(records);
       resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
       grist.setSelectedRows(allRecords.map(r => r.id));
+      // Restaurer l'état des filtres depuis le localStorage
+      restoreState();
     });
 });
