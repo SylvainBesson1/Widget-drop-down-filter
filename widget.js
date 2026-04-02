@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
     let allRecords = [];
+    let selectedTags = {};
     const STORAGE_KEY = 'grist_filters_state';
     let tagColumns = {};
     let selectColumns = {};        
@@ -103,18 +104,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement('div');
         row.className = 'tag-row';
 
-        const counts = countValues(records, col);
-        Object.entries(counts).forEach(([val, count]) => {
+        // Récupérer les valeurs uniques pour cette colonne
+        const uniqueValues = [...new Set(records.map(r => r[col]).flat())].filter(v => v !== undefined);
+
+        uniqueValues.forEach(val => {
           const tag = document.createElement('span');
           tag.className = 'tag';
-          tag.textContent = `${val} (${count})`;
+          tag.textContent = val;
 
-          if (selectedTags[col]?.includes(val)) {
+          // Initialiser selectedTags[col] si nécessaire
+          if (!selectedTags[col]) {
+            selectedTags[col] = [];
+          }
+
+          if (selectedTags[col].includes(val)) {
             tag.classList.add('active');
           }
 
           tag.addEventListener('click', () => {
-            selectedTags[col] = selectedTags[col] || [];
             if (selectedTags[col].includes(val)) {
               selectedTags[col] = selectedTags[col].filter(v => v !== val);
               tag.classList.remove('active');
@@ -298,6 +305,30 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    function restoreState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const state = JSON.parse(saved);
+        selectedTags = state.selectedTags || {}; // Initialisation si non défini
+        visibleFilters = state.visibleFilters || {
+          tags: true,
+          ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+        };
+
+        // Restaurer les sélections des listes déroulantes
+        Object.entries(state.selectEls || {}).forEach(([col, vals]) => {
+          if (selectEls[col]) {
+            Array.from(selectEls[col].options).forEach(o => {
+              o.selected = vals.includes(o.value);
+            });
+          }
+        });
+
+        // Mettre à jour la visibilité des filtres
+        updateFilterVisibility();
+      }
+    }
+
     resetButton.addEventListener('click', () => {
       selectedTags = {};
       Object.values(selectEls).forEach(sel => Array.from(sel.options).forEach(o => o.selected = false));
@@ -335,16 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     globalSearch.addEventListener('input', applyFilters);
 
-    function restoreState() {
-          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-          selectedTags = saved.selectedTags || {};
-          visibleFilters = saved.visibleFilters || {
-            tags: true,
-            ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
-          };
-          // Ne pas restaurer les sélections des listes au démarrage
-          updateFilterVisibility();
-        }
+    
     grist.onRecords((records) => {
       allRecords = records;
       inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
