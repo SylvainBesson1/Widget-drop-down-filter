@@ -12,23 +12,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const tableInfo = await grist.docApi.fetchSelectedTable();
       const columns = tableInfo.columns;
 
-      // Classer les colonnes selon leur type
-      columns.forEach(col => {
-        const colName = col.id;
-        const colType = col.type;
+        // Classer les colonnes selon leur type
+        columns.forEach(col => {
+          const colName = col.id;
+          const colType = col.type;
 
-        // Déterminer si la colonne est de type "choix unique/référence unique" ou "choix multiples/référence multiples"
-        if (colType === 'Choice' || colType === 'ChoiceList' || colType === 'Reference' || colType === 'ReferenceList') {
-          if (colType === 'Choice' || colType === 'Reference') {
-            // Colonne de type choix unique ou référence unique
-            selectColumns[colName] = col.label || colName;
-          } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
-            // Colonne de type choix multiples ou référence multiples
-            tagColumns[colName] = col.label || colName;
+          // Déterminer si la colonne est de type "choix unique/référence unique" ou "choix multiples/référence multiples"
+          if (colType === 'Choice' || colType === 'ChoiceList' || colType === 'Reference' || colType === 'ReferenceList') {
+            if (colType === 'Choice' || colType === 'Reference') {
+              // Colonne de type choix unique ou référence unique
+              selectColumns[colName] = col.label || colName;
+            } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
+              // Colonne de type choix multiples ou référence multiples
+              tagColumns[colName] = col.label || colName;
+            }
           }
-        }
-      });
-  }
+        });
+    }
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
