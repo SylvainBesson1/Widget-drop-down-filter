@@ -1,19 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
+    // Types de colonnes à exclure des filtres (sauf recherche globale)
+    const EXCLUDED_TYPES = ['Text', 'Image', 'Any', 'Numeric', 'Date', 'DateTime', 'Attachment'];
+
+    // Options d'affichage par défaut pour les colonnes éligibles
+    const DISPLAY_OPTIONS = {
+      Choice: 'select',      // Affichage en liste déroulante
+      ChoiceList: 'tags',     // Affichage en tags
+      Reference: 'select',   // Affichage en liste déroulante
+      ReferenceList: 'tags',  // Affichage en tags
+    };
+
+    // Variables globales
     let allRecords = [];
     let selectedTags = {};
+    let selectEls = {};
+    //let visibleFilters = {};
     const STORAGE_KEY = 'grist_filters_state';
     let tagColumns = {};
-    let selectColumns = {};        
-    let selectEls = {};
+    let selectColumns = {};
 
    async function fetchColumnsAndTypes() {
       try {
         const tableInfo = await grist.docApi.fetchSelectedTable();
-        console.log("Structure de la table :", tableInfo); // Affiche la structure complète pour débogage
-
-        // Vérifier si 'columns' existe dans la réponse
         if (!tableInfo || !tableInfo.columns) {
           console.error("La propriété 'columns' est introuvable dans la réponse de l'API.");
           return;
@@ -24,16 +34,22 @@ document.addEventListener('DOMContentLoaded', () => {
           const colName = col.id;
           const colType = col.type;
 
-          // Classer les colonnes selon leur type
-          if (colType === 'Choice' || colType === 'Reference') {
-            selectColumns[colName] = col.label || colName;
-          } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
+          // Exclure les colonnes non éligibles pour les filtres
+          if (EXCLUDED_TYPES.includes(colType)) {
+            return;
+          }
+
+          // Classer les colonnes selon leur type et l'option d'affichage
+          const displayOption = DISPLAY_OPTIONS[colType];
+          if (displayOption === 'tags') {
             tagColumns[colName] = col.label || colName;
+          } else if (displayOption === 'select') {
+            selectColumns[colName] = col.label || colName;
           }
         });
 
         console.log("Colonnes de type 'select' :", selectColumns);
-        console.log("Colonnes de type 'tag' :", tagColumns);
+        console.log("Colonnes de type 'tags' :", tagColumns);
       } catch (error) {
         console.error("Erreur lors de la récupération des colonnes :", error);
       }
@@ -57,23 +73,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function inferColumnTypes(records) {
-      const sampleRecord = records[0];
-      if (!sampleRecord) return;
+        if (!records.length) return;
 
-      Object.keys(sampleRecord).forEach(colName => {
-        const sampleValue = sampleRecord[colName];
+        const sampleRecord = records[0];
+        Object.keys(sampleRecord).forEach(colName => {
+          const sampleValue = sampleRecord[colName];
 
-        // Détecter les types de colonnes (simplifié)
-        if (Array.isArray(sampleValue)) {
-          tagColumns[colName] = colName; // Supposons que les tableaux sont des "tags"
-        } else if (typeof sampleValue === 'string' || typeof sampleValue === 'number') {
-          selectColumns[colName] = colName; // Supposons que les valeurs simples sont des "selects"
-        }
-      });
+          // Exclure les colonnes de type texte, ID ou image
+          if (typeof sampleValue === 'string' && !colName.includes('id') && !colName.includes('Id')) {
+            if (Array.isArray(sampleValue)) {
+              tagColumns[colName] = colName; // Supposons que les tableaux sont des "tags"
+            } else {
+              selectColumns[colName] = colName; // Supposons que les valeurs simples sont des "selects"
+            }
+          }
+        });
 
-      console.log("Colonnes de type 'select' (inférées) :", selectColumns);
-      console.log("Colonnes de type 'tag' (inférées) :", tagColumns);
-    }
+        console.log("Colonnes de type 'select' (inférées) :", selectColumns);
+        console.log("Colonnes de type 'tags' (inférées) :", tagColumns);
+      }
 
     function countValues(records, col) {
       const counts = {};
@@ -367,13 +385,19 @@ document.addEventListener('DOMContentLoaded', () => {
     globalSearch.addEventListener('input', applyFilters);
 
     
-    grist.onRecords((records) => {
+    grist.onRecords(async (records) => {
       allRecords = records;
-      inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
+      await fetchColumnsAndTypes();
+      if (Object.keys(selectColumns).length === 0 && Object.keys(tagColumns).length === 0) {
+        inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
+      }
       renderTags(records);
       renderSelects(records);
+
+      // Afficher tous les résultats par défaut
       resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
       grist.setSelectedRows(allRecords.map(r => r.id));
+
       // Restaurer l'état des filtres depuis le localStorage
       restoreState();
     });
