@@ -436,9 +436,11 @@ function applyFilters() {
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
   grist.onRecords(async (records) => {
-    console.log('Premier enregistrement brut :', JSON.stringify(records[0]));
-  // ... reste du code
-    allRecords = records;
+    const cols = Object.keys(records[0]);
+    cols.forEach(col => {
+      console.log(`Colonne: ${col} | Valeur: ${JSON.stringify(records[0][col])} | Type: ${typeof records[0][col]}`);
+    });  // ... reste du code
+      allRecords = records;
     tagColumns = {};
     selectColumns = {};
 
