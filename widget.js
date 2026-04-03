@@ -10,42 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
     let tagColumns = {};
     let selectColumns = {};
 
-   async function fetchColumnsAndTypes() {
-      try {
-        const tableInfo = await grist.docApi.fetchSelectedTable();
-        console.log("Réponse complète de l'API :", tableInfo); // Affiche la réponse complète pour analyse
+    function inferColumnTypes(records) {
+        if (!records.length) return;
 
-        if (!tableInfo) {
-          console.error("La réponse de l'API est vide.");
-          return;
-        }
+        const sampleRecord = records[0];
+        Object.keys(sampleRecord).forEach(colName => {
+          const sampleValue = sampleRecord[colName];
 
-        // Vérifiez si la propriété 'columns' existe
-        if (!tableInfo.columns) {
-          console.error("La propriété 'columns' est introuvable dans la réponse de l'API. Voici les propriétés disponibles :", Object.keys(tableInfo));
-          return;
-        }
-
-        const columns = tableInfo.columns;
-        columns.forEach(col => {
-          const colName = col.id;
-          const colType = col.type;
-
-          if (['Choice', 'ChoiceList', 'Reference', 'ReferenceList'].includes(colType)) {
-            if (colType === 'Choice' || colType === 'Reference') {
-              selectColumns[colName] = col.label || colName;
-            } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
-              tagColumns[colName] = col.label || colName;
-            }
+          // Ignorer les valeurs nulles ou non définies
+          if (sampleValue === null || sampleValue === undefined) {
+            return;
           }
+
+          // Inclure uniquement les colonnes avec des tableaux, des chaînes ou des objets
+          if (Array.isArray(sampleValue)) {
+            // Si la valeur est un tableau, c'est probablement un ChoiceList ou ReferenceList
+            tagColumns[colName] = colName;
+          } else if (typeof sampleValue === 'string' || (typeof sampleValue === 'object' && sampleValue !== null)) {
+            // Si la valeur est une chaîne ou un objet, c'est probablement un Choice ou Reference
+            selectColumns[colName] = colName;
+          }
+          // Ignorer automatiquement les autres types (nombres, booléens, etc.)
         });
 
-        console.log("Colonnes de type 'select' :", selectColumns);
-        console.log("Colonnes de type 'tags' :", tagColumns);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des colonnes :", error);
+        console.log("Colonnes de type 'select' (inférées) :", selectColumns);
+        console.log("Colonnes de type 'tags' (inférées) :", tagColumns);
       }
-    }
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
@@ -377,12 +367,9 @@ document.addEventListener('DOMContentLoaded', () => {
     globalSearch.addEventListener('input', applyFilters);
 
     
-    grist.onRecords(async (records) => {
+   grist.onRecords((records) => {
       allRecords = records;
-      await fetchColumnsAndTypes();
-      if (Object.keys(selectColumns).length === 0 && Object.keys(tagColumns).length === 0) {
-        inferColumnTypes(records); // Utiliser l'inférence si l'API ne fonctionne pas
-      }
+      inferColumnTypes(records); // Inférer les types de colonnes dynamiquement
       renderTags(records);
       renderSelects(records);
 
