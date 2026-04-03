@@ -430,12 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilterCheckboxes();
   });
 
-  filterModal.addEventListener('click', (e) => {
-    if (e.target === filterModal) {
-      filterModal.style.display = 'none';
-    }
-  });
-  
+
   globalSearch.addEventListener('input', applyFilters);
 
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
