@@ -13,49 +13,49 @@ document.addEventListener('DOMContentLoaded', () => {
     ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
   };
 
-    async function fetchColumnsAndTypes() {
+  async function fetchColumnsAndTypes() {
+    try {
+      const colTable = await grist.docApi.fetchTable('_grist_Tables_column');
+      const tableRef = await grist.docApi.fetchTable('_grist_Tables');
+
+      // ✅ Récupération de l'ID ici, dans le contexte async
+      let tableId;
       try {
-        const colTable = await grist.docApi.fetchTable('_grist_Tables_column');
-        const tableRef = await grist.docApi.fetchTable('_grist_Tables');
-
-        // ✅ Récupération de l'ID ici, dans le contexte async
-        let tableId;
-        try {
-          tableId = await grist.selectedTable.getTableId();
-        } catch {
-          tableId = await grist.getOption('tableId');
-        }
-
-        if (!tableId) {
-          console.error('Impossible de récupérer le tableId.');
-          return;
-        }
-
-        const tableIdx = tableRef.tableId.indexOf(tableId);
-        const parentRef = tableRef.id[tableIdx];
-
-        const colIndices = colTable.parentId
-          .map((pid, i) => pid === parentRef ? i : -1)
-          .filter(i => i !== -1);
-
-        colIndices.forEach(i => {
-          const colId = colTable.colId[i];
-          const label = colTable.label[i] || colId;
-          const type  = colTable.type[i];
-
-          if (type === 'Choice' || type.startsWith('Ref:')) {
-            selectColumns[colId] = label;
-          } else if (type === 'ChoiceList' || type.startsWith('RefList:')) {
-            tagColumns[colId] = label;
-          }
-        });
-
-        console.log('Colonnes select :', selectColumns);
-        console.log('Colonnes tags :', tagColumns);
-      } catch (error) {
-        console.error('Erreur fetchColumnsAndTypes :', error);
+        tableId = await grist.selectedTable.getTableId();
+      } catch {
+        tableId = await grist.getOption('tableId');
       }
+
+      if (!tableId) {
+        console.error('Impossible de récupérer le tableId.');
+        return;
+      }
+
+      const tableIdx = tableRef.tableId.indexOf(tableId);
+      const parentRef = tableRef.id[tableIdx];
+
+      const colIndices = colTable.parentId
+        .map((pid, i) => pid === parentRef ? i : -1)
+        .filter(i => i !== -1);
+
+      colIndices.forEach(i => {
+        const colId = colTable.colId[i];
+        const label = colTable.label[i] || colId;
+        const type  = colTable.type[i];
+
+        if (type === 'Choice' || type.startsWith('Ref:')) {
+          selectColumns[colId] = label;
+        } else if (type === 'ChoiceList' || type.startsWith('RefList:')) {
+          tagColumns[colId] = label;
+        }
+      });
+
+      console.log('Colonnes select :', selectColumns);
+      console.log('Colonnes tags :', tagColumns);
+    } catch (error) {
+      console.error('Erreur fetchColumnsAndTypes :', error);
     }
+  }
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
