@@ -5,7 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEY = 'grist_filters_state';
   let tagColumns = {};
   let selectColumns = {};
-  let visibleFilters = { tags: true };
+  let visibleFilters = {
+  tags: true, // Visibilité globale des tags
+  ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+  ...Object.keys(tagColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+};
 
   const tagContainer = document.getElementById('tag-filters');
   const selectContainer = document.getElementById('dynamic-filters');
@@ -266,30 +270,47 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderFilterCheckboxes() {
     filterCheckboxesContainer.innerHTML = '';
 
+    // Checkbox pour afficher/masquer tous les tags
     const tagCheckbox = document.createElement('div');
     tagCheckbox.className = 'checkbox-item';
     tagCheckbox.innerHTML = `
       <input type="checkbox" id="show-tags" ${visibleFilters.tags ? 'checked' : ''}>
       <label for="show-tags">Filtres par tags</label>
     `;
-    tagCheckbox.querySelector('input').addEventListener('change', e => {
+    tagCheckbox.querySelector('input').addEventListener('change', (e) => {
       visibleFilters.tags = e.target.checked;
       updateFilterVisibility();
     });
     filterCheckboxesContainer.appendChild(tagCheckbox);
 
+    // Checkbox pour chaque colonne de type "select"
     Object.entries(selectColumns).forEach(([col, label]) => {
-      const div = document.createElement('div');
-      div.className = 'checkbox-item';
-      div.innerHTML = `
-        <input type="checkbox" id="show-${col}" ${visibleFilters[col] !== false ? 'checked' : ''}>
+      const checkbox = document.createElement('div');
+      checkbox.className = 'checkbox-item';
+      checkbox.innerHTML = `
+        <input type="checkbox" id="show-${col}" ${visibleFilters[col] ? 'checked' : ''}>
         <label for="show-${col}">${label}</label>
       `;
-      div.querySelector('input').addEventListener('change', e => {
+      checkbox.querySelector('input').addEventListener('change', (e) => {
         visibleFilters[col] = e.target.checked;
         updateFilterVisibility();
       });
-      filterCheckboxesContainer.appendChild(div);
+      filterCheckboxesContainer.appendChild(checkbox);
+    });
+
+    // Checkbox pour chaque colonne de type "tag"
+    Object.entries(tagColumns).forEach(([col, label]) => {
+      const checkbox = document.createElement('div');
+      checkbox.className = 'checkbox-item';
+      checkbox.innerHTML = `
+        <input type="checkbox" id="show-${col}" ${visibleFilters[col] ? 'checked' : ''}>
+        <label for="show-${col}">${label}</label>
+      `;
+      checkbox.querySelector('input').addEventListener('change', (e) => {
+        visibleFilters[col] = e.target.checked;
+        updateFilterVisibility();
+      });
+      filterCheckboxesContainer.appendChild(checkbox);
     });
   }
 
