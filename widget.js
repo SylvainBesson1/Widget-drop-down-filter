@@ -138,6 +138,7 @@ function applyFilters() {
 
   function renderTags(records) {
     tagContainer.innerHTML = '';
+    selectedTags = {};
     Object.entries(tagColumns).forEach(([col, label]) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'tag-group';
