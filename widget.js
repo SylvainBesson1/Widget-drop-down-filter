@@ -95,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const wrapper = document.createElement('div');
       wrapper.className = 'tag-group';
 
-      // En-tête avec titre + boutons
       const header = document.createElement('div');
       header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:4px;';
 
@@ -120,10 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const row = document.createElement('div');
       row.className = 'tag-row';
 
-      const uniqueValues = [...new Set(records.flatMap(r => {
-        const v = r[col];
-        return Array.isArray(v) ? v : (v ? [v] : []);
-      }))].filter(v => v !== undefined && v !== null && v !== '');
+      // Nettoyage du marqueur interne Grist ["L", "val1", "val2"]
+      const cleanVal = (v) => {
+        if (Array.isArray(v)) return v.filter(x => x !== 'L' && x !== null && x !== undefined && x !== '');
+        return v ? [v] : [];
+      };
+
+      const uniqueValues = [...new Set(records.flatMap(r => cleanVal(r[col])))];
 
       if (!selectedTags[col]) selectedTags[col] = [];
 
@@ -131,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const tag = document.createElement('span');
         tag.className = 'tag';
         tag.textContent = val;
-        tag.dataset.val = val;
 
         if (selectedTags[col].includes(val)) tag.classList.add('active');
 
@@ -149,14 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
         row.appendChild(tag);
       });
 
-      // Tout sélectionner
       btnAll.addEventListener('click', () => {
         selectedTags[col] = [...uniqueValues];
         row.querySelectorAll('.tag').forEach(t => t.classList.add('active'));
         applyFilters();
       });
 
-      // Tout désélectionner
       btnNone.addEventListener('click', () => {
         selectedTags[col] = [];
         row.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
