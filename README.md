@@ -26,7 +26,7 @@ https://sylvainbesson1.github.io/Widget-drop-down-filter/
    - Collez l'URL dans le Widget "Ajouter votre propre widget"
    - Selectionnez le niveau d'accès complet au document
   
-3. **Cliquez sur le tableau que vous souhaitez filtrer
+3. **Cliquez sur le tableau que vous souhaitez filtrer**
    - Sur le volet de droite, dans table, aller "Données source"
    - Selectionner par la vue du filtrer
 ---
@@ -37,7 +37,13 @@ Le widget détecte automatiquement les colonnes de type `Choice`, `ChoiceList`, 
 
 
 
----------
+---------------------------------------------------------------
+
+
+
+
+
+
 
 
 # 🇬🇧  Advanced Filters Widget for Grist
