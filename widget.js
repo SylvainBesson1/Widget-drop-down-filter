@@ -75,19 +75,66 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Colonnes tags :', tagColumns);
   }
 
-  function countValues(records, col) {
-    const counts = {};
-    records.forEach(r => {
-      let val = r[col];
-      if (!val) return;
-      if (Array.isArray(val)) {
-        val.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
-      } else {
-        counts[val] = (counts[val] || 0) + 1;
-      }
-    });
-    return counts;
+// Remplace countValues par :
+function countValues(records, col) {
+  const counts = {};
+  records.forEach(r => {
+    let val = r[col];
+    if (!val) return;
+    const values = Array.isArray(val)
+      ? val.filter(x => x !== 'L' && x !== null && x !== undefined && x !== '')
+      : [val];
+    values.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+  });
+  return counts;
+}
+
+// Remplace applyFilters par :
+function applyFilters() {
+  let filtered = [...allRecords];
+
+  const cleanVal = (v) => {
+    if (Array.isArray(v)) return v.filter(x => x !== 'L' && x !== null && x !== undefined && x !== '');
+    return v ? [String(v)] : [];
+  };
+
+  Object.keys(selectedTags).forEach(col => {
+    const vals = selectedTags[col];
+    if (vals && vals.length > 0) {
+      filtered = filtered.filter(r => cleanVal(r[col]).some(v => vals.includes(v)));
+    }
+  });
+
+  Object.keys(selectEls).forEach(col => {
+    const selectEl = selectEls[col];
+    if (!selectEl) return;
+    const val = selectEl.value;
+    if (val) {
+      filtered = filtered.filter(r => cleanVal(r[col]).includes(val) || String(r[col]) === val);
+    }
+  });
+
+  const search = globalSearch.value.toLowerCase().trim();
+  if (search) {
+    filtered = filtered.filter(r =>
+      Object.values(r).some(v => {
+        if (!v) return false;
+        if (Array.isArray(v)) return v.some(x => String(x).toLowerCase().includes(search));
+        return String(v).toLowerCase().includes(search);
+      })
+    );
   }
+
+  resultsCount.textContent = `🔢 Résultats: ${filtered.length}`;
+  grist.setSelectedRows(filtered.map(r => r.id));
+  updateDisabledOptions(filtered);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    selectedTags,
+    selectEls: serializeSelects(),
+    visibleFilters
+  }));
+}
 
   function renderTags(records) {
     tagContainer.innerHTML = '';
