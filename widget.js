@@ -95,10 +95,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const wrapper = document.createElement('div');
       wrapper.className = 'tag-group';
 
+      // En-tête avec titre + boutons
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:4px;';
+
       const title = document.createElement('div');
       title.className = 'tag-title';
+      title.style.margin = '0';
       title.textContent = label;
-      wrapper.appendChild(title);
+
+      const btnAll = document.createElement('button');
+      btnAll.textContent = 'Tout';
+      btnAll.style.cssText = 'font-size:0.75em;padding:1px 6px;cursor:pointer;';
+
+      const btnNone = document.createElement('button');
+      btnNone.textContent = 'Aucun';
+      btnNone.style.cssText = 'font-size:0.75em;padding:1px 6px;cursor:pointer;';
+
+      header.appendChild(title);
+      header.appendChild(btnAll);
+      header.appendChild(btnNone);
+      wrapper.appendChild(header);
 
       const row = document.createElement('div');
       row.className = 'tag-row';
@@ -114,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tag = document.createElement('span');
         tag.className = 'tag';
         tag.textContent = val;
+        tag.dataset.val = val;
 
         if (selectedTags[col].includes(val)) tag.classList.add('active');
 
@@ -129,6 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         row.appendChild(tag);
+      });
+
+      // Tout sélectionner
+      btnAll.addEventListener('click', () => {
+        selectedTags[col] = [...uniqueValues];
+        row.querySelectorAll('.tag').forEach(t => t.classList.add('active'));
+        applyFilters();
+      });
+
+      // Tout désélectionner
+      btnNone.addEventListener('click', () => {
+        selectedTags[col] = [];
+        row.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        applyFilters();
       });
 
       wrapper.appendChild(row);
