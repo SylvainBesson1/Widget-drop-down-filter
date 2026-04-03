@@ -9,38 +9,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEY = 'grist_filters_state';
     let tagColumns = {};
     let selectColumns = {};
-    let TextColumns = {};
-   async function fetchColumnsAndTypes() {
-      try {
-        // Récupérer les métadonnées de la table
-        const tableMetadata = await grist.docApi.fetchSelectedTable();
-        console.log("Métadonnées de la table :", tableMetadata);
 
-        if (!tableMetadata || !tableMetadata.columns) {
-          console.error("Impossible de récupérer les métadonnées des colonnes.");
-          return;
-        }
+  async function fetchColumnsAndTypes() {
+  try {
+    // La bonne API pour récupérer les métadonnées des colonnes
+    const tableId = await grist.selectedTable.getTableId();
+    const columns = await grist.docApi.getColumns(tableId);
+    
+    columns.forEach(col => {
+      const colName = col.id;
+      const colType = col.fields?.type || col.type;
 
-        // Parcourir les colonnes et les classer selon leur type
-        tableMetadata.columns.forEach(col => {
-          const colName = col.id;
-          const colType = col.type;
-
-          if (colType === 'Choice' || colType === 'Reference') {
-            selectColumns[colName] = col.label || colName; // Choix unique ou référence unique
-          } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
-            tagColumns[colName] = col.label || colName; // Choix multiples ou référence multiple
-          } else if (colType === 'Text')  {
-            TextColumns[colName] = col.label || colName; // Colonnes de type texte
-          }
-        });
-
-        console.log("Colonnes de type 'select' :", selectColumns);
-        console.log("Colonnes de type 'tags' :", tagColumns);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des colonnes :", error);
+      if (colType === 'Choice' || colType === 'Ref') {
+        selectColumns[colName] = col.fields?.label || col.label || colName;
+      } else if (colType === 'ChoiceList' || colType === 'RefList') {
+        tagColumns[colName] = col.fields?.label || col.label || colName;
       }
-    }
+      // Text, Numeric, Date, etc. → ignorés volontairement
+    });
+
+    console.log("Colonnes select :", selectColumns);
+    console.log("Colonnes tags :", tagColumns);
+  } catch (error) {
+    console.error("Erreur fetchColumnsAndTypes :", error);
+  }
+}
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
@@ -373,20 +366,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
   grist.onRecords(async (records) => {
-  allRecords = records;
-  try {
-    await fetchColumnsAndTypes(); // Essayer de récupérer les métadonnées des colonnes
-  } catch (error) {
-    console.error("Impossible de récupérer les métadonnées des colonnes. Utilisation de l'inférence.");
-  }
-  renderTags(records);
-  renderSelects(records);
+    allRecords = records;
 
-  // Afficher tous les résultats par défaut
-  resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
-  grist.setSelectedRows(allRecords.map(r => r.id));
+    // Réinitialiser pour éviter les doublons au rechargement
+    tagColumns = {};
+    selectColumns = {};
 
-  // Restaurer l'état des filtres depuis le localStorage
-  restoreState();
-});
+    try {
+      await fetchColumnsAndTypes();
+    } catch (error) {
+      console.error("Impossible de récupérer les métadonnées.");
+    }
+
+    renderTags(records);
+    renderSelects(records);
+
+    resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
+    grist.setSelectedRows(allRecords.map(r => r.id));
+
+    restoreState();
+  });
 });
