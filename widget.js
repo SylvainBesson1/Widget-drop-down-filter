@@ -1,46 +1,53 @@
-grist.ready({ requiredAccess: 'full', allowSelectBy: true, columns: [], });
-// puis récupérer via :
-    const tableId = await grist.selectedTable.getTableId();
+document.addEventListener('DOMContentLoaded', () => {
+  grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
-    // Variables globales
-    let allRecords = [];
-    let selectedTags = {};
-    let selectEls = {};
-    //let visibleFilters = {};
-    const STORAGE_KEY = 'grist_filters_state';
-    let tagColumns = {};
-    let selectColumns = {};
+  let allRecords = [];
+  let selectedTags = {};
+  let selectEls = {};
+  const STORAGE_KEY = 'grist_filters_state';
+  let tagColumns = {};
+  let selectColumns = {};
+
+  let visibleFilters = {
+    tags: true,
+    ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
+  };
 
     async function fetchColumnsAndTypes() {
       try {
-        // Récupérer directement la table interne des colonnes Grist
         const colTable = await grist.docApi.fetchTable('_grist_Tables_column');
-        
-        // Récupérer l'ID de la table courante
         const tableRef = await grist.docApi.fetchTable('_grist_Tables');
-        const tableId = await grist.getOption('tableId') 
-          || (await grist.selectedTable?.getTableId?.());
 
-        // Trouver le tableRef correspondant à notre table
+        // ✅ Récupération de l'ID ici, dans le contexte async
+        let tableId;
+        try {
+          tableId = await grist.selectedTable.getTableId();
+        } catch {
+          tableId = await grist.getOption('tableId');
+        }
+
+        if (!tableId) {
+          console.error('Impossible de récupérer le tableId.');
+          return;
+        }
+
         const tableIdx = tableRef.tableId.indexOf(tableId);
         const parentRef = tableRef.id[tableIdx];
 
-        // Filtrer les colonnes qui appartiennent à notre table
         const colIndices = colTable.parentId
           .map((pid, i) => pid === parentRef ? i : -1)
           .filter(i => i !== -1);
 
         colIndices.forEach(i => {
-          const colId  = colTable.colId[i];
-          const label  = colTable.label[i] || colId;
-          const type   = colTable.type[i];
+          const colId = colTable.colId[i];
+          const label = colTable.label[i] || colId;
+          const type  = colTable.type[i];
 
           if (type === 'Choice' || type.startsWith('Ref:')) {
             selectColumns[colId] = label;
           } else if (type === 'ChoiceList' || type.startsWith('RefList:')) {
             tagColumns[colId] = label;
           }
-          // Text, Numeric, Date, etc. → ignorés
         });
 
         console.log('Colonnes select :', selectColumns);
@@ -48,7 +55,8 @@ grist.ready({ requiredAccess: 'full', allowSelectBy: true, columns: [], });
       } catch (error) {
         console.error('Erreur fetchColumnsAndTypes :', error);
       }
-    } 
+    }
+
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
     const globalSearch = document.getElementById('global-search');
@@ -60,32 +68,6 @@ grist.ready({ requiredAccess: 'full', allowSelectBy: true, columns: [], });
     const filterCheckboxesContainer = document.getElementById('filter-checkboxes');
     const selectAllBtn = document.getElementById('select-all');
     const deselectAllBtn = document.getElementById('deselect-all');
-
-    let visibleFilters = {
-      tags: true,
-      ...Object.keys(selectColumns).reduce((acc, col) => ({ ...acc, [col]: true }), {}),
-    };
-
-    function inferColumnTypes(records) {
-        if (!records.length) return;
-
-        const sampleRecord = records[0];
-        Object.keys(sampleRecord).forEach(colName => {
-          const sampleValue = sampleRecord[colName];
-
-          // Exclure les colonnes de type texte, ID ou image
-          if (typeof sampleValue === 'string' && !colName.includes('id') && !colName.includes('Id')) {
-            if (Array.isArray(sampleValue)) {
-              tagColumns[colName] = colName; // Supposons que les tableaux sont des "tags"
-            } else {
-              selectColumns[colName] = colName; // Supposons que les valeurs simples sont des "selects"
-            }
-          }
-        });
-
-        console.log("Colonnes de type 'select' (inférées) :", selectColumns);
-        console.log("Colonnes de type 'tags' (inférées) :", tagColumns);
-      }
 
     function countValues(records, col) {
       const counts = {};
