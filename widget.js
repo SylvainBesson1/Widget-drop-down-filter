@@ -348,18 +348,6 @@ function applyFilters() {
   function renderFilterCheckboxes() {
     filterCheckboxesContainer.innerHTML = '';
 
-    // Checkbox pour afficher/masquer tous les tags
-    const tagCheckbox = document.createElement('div');
-    tagCheckbox.className = 'checkbox-item';
-    tagCheckbox.innerHTML = `
-      <input type="checkbox" id="show-tags" ${visibleFilters.tags ? 'checked' : ''}>
-      <label for="show-tags">Filtres par tags</label>
-    `;
-    tagCheckbox.querySelector('input').addEventListener('change', (e) => {
-      visibleFilters.tags = e.target.checked;
-      updateFilterVisibility();
-    });
-    filterCheckboxesContainer.appendChild(tagCheckbox);
 
     // Checkbox pour chaque colonne de type "select"
     Object.entries(selectColumns).forEach(([col, label]) => {
