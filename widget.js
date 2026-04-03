@@ -370,17 +370,21 @@ document.addEventListener('DOMContentLoaded', () => {
     globalSearch.addEventListener('input', applyFilters);
 
     
-   grist.onRecords((records) => {
-      allRecords = records;
-      inferColumnTypes(records); // Inférer les types de colonnes dynamiquement
-      renderTags(records);
-      renderSelects(records);
+  grist.onRecords(async (records) => {
+  allRecords = records;
+  try {
+    await fetchColumnsAndTypes(); // Essayer de récupérer les métadonnées des colonnes
+  } catch (error) {
+    console.error("Impossible de récupérer les métadonnées des colonnes. Utilisation de l'inférence.");
+  }
+  renderTags(records);
+  renderSelects(records);
 
-      // Afficher tous les résultats par défaut
-      resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
-      grist.setSelectedRows(allRecords.map(r => r.id));
+  // Afficher tous les résultats par défaut
+  resultsCount.textContent = `🔢 Résultats: ${allRecords.length}`;
+  grist.setSelectedRows(allRecords.map(r => r.id));
 
-      // Restaurer l'état des filtres depuis le localStorage
-      restoreState();
-    });
+  // Restaurer l'état des filtres depuis le localStorage
+  restoreState();
+});
 });
