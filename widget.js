@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const STORAGE_KEY = 'grist_filters_state';
     let tagColumns = {};
     let selectColumns = {};
-
+    let TextColumns = {};
    async function fetchColumnsAndTypes() {
       try {
         // Récupérer les métadonnées de la table
@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
             selectColumns[colName] = col.label || colName; // Choix unique ou référence unique
           } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
             tagColumns[colName] = col.label || colName; // Choix multiples ou référence multiple
+          } else if (colType === 'Text')  {
+            TextColumns[colName] = col.label || colName; // Colonnes de type texte
           }
         });
 
