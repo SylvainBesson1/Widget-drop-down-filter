@@ -1,17 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
-    // Types de colonnes à exclure des filtres (sauf recherche globale)
-    const EXCLUDED_TYPES = ['Text', 'Image', 'Any', 'Numeric', 'Date', 'DateTime', 'Attachment'];
-
-    // Options d'affichage par défaut pour les colonnes éligibles
-    const DISPLAY_OPTIONS = {
-      Choice: 'select',      // Affichage en liste déroulante
-      ChoiceList: 'tags',     // Affichage en tags
-      Reference: 'select',   // Affichage en liste déroulante
-      ReferenceList: 'tags',  // Affichage en tags
-    };
-
     // Variables globales
     let allRecords = [];
     let selectedTags = {};
@@ -24,27 +13,23 @@ document.addEventListener('DOMContentLoaded', () => {
    async function fetchColumnsAndTypes() {
       try {
         const tableInfo = await grist.docApi.fetchSelectedTable();
-        if (!tableInfo || !tableInfo.fields) {
-          console.error("La propriété 'fields' est introuvable dans la réponse de l'API.");
+        if (!tableInfo || !tableInfo.columns) {
+          console.error("La propriété 'columns' est introuvable dans la réponse de l'API.");
           return;
         }
 
-        const columns = tableInfo.fields;
+        const columns = tableInfo.columns;
         columns.forEach(col => {
           const colName = col.id;
           const colType = col.type;
 
-          // Exclure les colonnes non éligibles pour les filtres
-          if (EXCLUDED_TYPES.includes(colType)) {
-            return;
-          }
-
-          // Classer les colonnes selon leur type et l'option d'affichage
-          const displayOption = DISPLAY_OPTIONS[colType];
-          if (displayOption === 'tags') {
-            tagColumns[colName] = col.label || colName;
-          } else if (displayOption === 'select') {
-            selectColumns[colName] = col.label || colName;
+          // Ne traiter que les colonnes de type Choice, ChoiceList, Reference ou ReferenceList
+          if (['Choice', 'ChoiceList', 'Reference', 'ReferenceList'].includes(colType)) {
+            if (colType === 'Choice' || colType === 'Reference') {
+              selectColumns[colName] = col.label || colName; // Choix unique ou référence unique
+            } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
+              tagColumns[colName] = col.label || colName; // Choix multiples ou référence multiple
+            }
           }
         });
 
@@ -53,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) {
         console.error("Erreur lors de la récupération des colonnes :", error);
       }
-    }
+}
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
