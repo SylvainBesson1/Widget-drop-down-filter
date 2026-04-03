@@ -10,32 +10,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let tagColumns = {};
     let selectColumns = {};
 
-    function inferColumnTypes(records) {
-        if (!records.length) return;
+   async function fetchColumnsAndTypes() {
+      try {
+        // Récupérer les métadonnées de la table
+        const tableMetadata = await grist.docApi.fetchSelectedTable();
+        console.log("Métadonnées de la table :", tableMetadata);
 
-        const sampleRecord = records[0];
-        Object.keys(sampleRecord).forEach(colName => {
-          const sampleValue = sampleRecord[colName];
+        if (!tableMetadata || !tableMetadata.columns) {
+          console.error("Impossible de récupérer les métadonnées des colonnes.");
+          return;
+        }
 
-          // Ignorer les valeurs nulles ou non définies
-          if (sampleValue === null || sampleValue === undefined) {
-            return;
+        // Parcourir les colonnes et les classer selon leur type
+        tableMetadata.columns.forEach(col => {
+          const colName = col.id;
+          const colType = col.type;
+
+          if (colType === 'Choice' || colType === 'Reference') {
+            selectColumns[colName] = col.label || colName; // Choix unique ou référence unique
+          } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
+            tagColumns[colName] = col.label || colName; // Choix multiples ou référence multiple
           }
-
-          // Inclure uniquement les colonnes avec des tableaux, des chaînes ou des objets
-          if (Array.isArray(sampleValue)) {
-            // Si la valeur est un tableau, c'est probablement un ChoiceList ou ReferenceList
-            tagColumns[colName] = colName;
-          } else if (typeof sampleValue === 'string' || (typeof sampleValue === 'object' && sampleValue !== null)) {
-            // Si la valeur est une chaîne ou un objet, c'est probablement un Choice ou Reference
-            selectColumns[colName] = colName;
-          }
-          // Ignorer automatiquement les autres types (nombres, booléens, etc.)
         });
 
-        console.log("Colonnes de type 'select' (inférées) :", selectColumns);
-        console.log("Colonnes de type 'tags' (inférées) :", tagColumns);
+        console.log("Colonnes de type 'select' :", selectColumns);
+        console.log("Colonnes de type 'tags' :", tagColumns);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des colonnes :", error);
       }
+    }
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
