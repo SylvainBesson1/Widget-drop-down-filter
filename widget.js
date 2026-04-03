@@ -13,8 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
    async function fetchColumnsAndTypes() {
       try {
         const tableInfo = await grist.docApi.fetchSelectedTable();
-        if (!tableInfo || !tableInfo.columns) {
-          console.error("La propriété 'columns' est introuvable dans la réponse de l'API.");
+        console.log("Réponse complète de l'API :", tableInfo); // Affiche la réponse complète pour analyse
+
+        if (!tableInfo) {
+          console.error("La réponse de l'API est vide.");
+          return;
+        }
+
+        // Vérifiez si la propriété 'columns' existe
+        if (!tableInfo.columns) {
+          console.error("La propriété 'columns' est introuvable dans la réponse de l'API. Voici les propriétés disponibles :", Object.keys(tableInfo));
           return;
         }
 
@@ -23,12 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const colName = col.id;
           const colType = col.type;
 
-          // Ne traiter que les colonnes de type Choice, ChoiceList, Reference ou ReferenceList
           if (['Choice', 'ChoiceList', 'Reference', 'ReferenceList'].includes(colType)) {
             if (colType === 'Choice' || colType === 'Reference') {
-              selectColumns[colName] = col.label || colName; // Choix unique ou référence unique
+              selectColumns[colName] = col.label || colName;
             } else if (colType === 'ChoiceList' || colType === 'ReferenceList') {
-              tagColumns[colName] = col.label || colName; // Choix multiples ou référence multiple
+              tagColumns[colName] = col.label || colName;
             }
           }
         });
@@ -38,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (error) {
         console.error("Erreur lors de la récupération des colonnes :", error);
       }
-}
+    }
 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
