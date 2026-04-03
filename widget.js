@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFilterVisibility();
     renderFilterCheckboxes();
   });
-
+u
 
   globalSearch.addEventListener('input', applyFilters);
 
