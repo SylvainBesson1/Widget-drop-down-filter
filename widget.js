@@ -1,5 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-  grist.ready({ requiredAccess: 'full', allowSelectBy: true });
+grist.ready({ requiredAccess: 'full', allowSelectBy: true, columns: [], });
+// puis récupérer via :
+    const tableId = await grist.selectedTable.getTableId();
 
     // Variables globales
     let allRecords = [];
@@ -10,31 +11,44 @@ document.addEventListener('DOMContentLoaded', () => {
     let tagColumns = {};
     let selectColumns = {};
 
-  async function fetchColumnsAndTypes() {
-  try {
-    // La bonne API pour récupérer les métadonnées des colonnes
-    const tableId = await grist.selectedTable.getTableId();
-    const columns = await grist.docApi.getColumns(tableId);
-    
-    columns.forEach(col => {
-      const colName = col.id;
-      const colType = col.fields?.type || col.type;
+    async function fetchColumnsAndTypes() {
+      try {
+        // Récupérer directement la table interne des colonnes Grist
+        const colTable = await grist.docApi.fetchTable('_grist_Tables_column');
+        
+        // Récupérer l'ID de la table courante
+        const tableRef = await grist.docApi.fetchTable('_grist_Tables');
+        const tableId = await grist.getOption('tableId') 
+          || (await grist.selectedTable?.getTableId?.());
 
-      if (colType === 'Choice' || colType === 'Ref') {
-        selectColumns[colName] = col.fields?.label || col.label || colName;
-      } else if (colType === 'ChoiceList' || colType === 'RefList') {
-        tagColumns[colName] = col.fields?.label || col.label || colName;
+        // Trouver le tableRef correspondant à notre table
+        const tableIdx = tableRef.tableId.indexOf(tableId);
+        const parentRef = tableRef.id[tableIdx];
+
+        // Filtrer les colonnes qui appartiennent à notre table
+        const colIndices = colTable.parentId
+          .map((pid, i) => pid === parentRef ? i : -1)
+          .filter(i => i !== -1);
+
+        colIndices.forEach(i => {
+          const colId  = colTable.colId[i];
+          const label  = colTable.label[i] || colId;
+          const type   = colTable.type[i];
+
+          if (type === 'Choice' || type.startsWith('Ref:')) {
+            selectColumns[colId] = label;
+          } else if (type === 'ChoiceList' || type.startsWith('RefList:')) {
+            tagColumns[colId] = label;
+          }
+          // Text, Numeric, Date, etc. → ignorés
+        });
+
+        console.log('Colonnes select :', selectColumns);
+        console.log('Colonnes tags :', tagColumns);
+      } catch (error) {
+        console.error('Erreur fetchColumnsAndTypes :', error);
       }
-      // Text, Numeric, Date, etc. → ignorés volontairement
-    });
-
-    console.log("Colonnes select :", selectColumns);
-    console.log("Colonnes tags :", tagColumns);
-  } catch (error) {
-    console.error("Erreur fetchColumnsAndTypes :", error);
-  }
-}
-
+    } 
     const tagContainer = document.getElementById('tag-filters');
     const selectContainer = document.getElementById('dynamic-filters');
     const globalSearch = document.getElementById('global-search');
