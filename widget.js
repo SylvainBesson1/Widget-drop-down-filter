@@ -97,175 +97,136 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyOrder() {
+  initOrder();
+  renderTags(allRecords);   // ✅ utilise allRecords explicitement
+  renderSelects(allRecords); // ✅ idem
+  updateFilterVisibility();  // ✅ applique la visibilité après le rendu
+}
+
+  function applyOrder() {
     initOrder();
-    renderTags(allRecords);
-    renderSelects(allRecords);
-  }
+    const container = document.getElementById('filters-container');
+    container.innerHTML = '';
+    selectEls = {};
 
-  function renderTags(records) {
-    tagContainer.innerHTML = '';
-    const tagOrder = columnsOrder.filter(o => o.type === 'tag');
-
-    tagOrder.forEach(({ col }) => {
-      const label = tagColumns[col];
-      if (!label) return;
+    columnsOrder.forEach(({ col, type }) => {
       if (visibleFilters[col] === false) return;
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'tag-group';
+      if (type === 'tag') {
+        const label = tagColumns[col];
+        if (!label) return;
 
-      const header = document.createElement('div');
-      header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'tag-group';
 
-      const title = document.createElement('div');
-      title.className = 'tag-title';
-      title.style.margin = '0';
-      title.textContent = label;
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
 
-      const btnAll = document.createElement('button');
-      btnAll.textContent = 'Tout';
-      btnAll.style.cssText = 'font-size:0.75em;padding:2px 8px;cursor:pointer;border-radius:4px;border:1px solid;background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info);';
+        const title = document.createElement('div');
+        title.className = 'tag-title';
+        title.style.margin = '0';
+        title.textContent = label;
 
-      const btnNone = document.createElement('button');
-      btnNone.textContent = 'Aucun';
-      btnNone.style.cssText = 'font-size:0.75em;padding:2px 8px;cursor:pointer;border-radius:4px;border:1px solid;background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-secondary);';
+        const btnAll = document.createElement('button');
+        btnAll.textContent = 'Tout';
+        btnAll.style.cssText = 'font-size:0.75em;padding:2px 8px;cursor:pointer;border-radius:4px;border:1px solid;background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info);';
 
-      header.appendChild(title);
-      header.appendChild(btnAll);
-      header.appendChild(btnNone);
-      wrapper.appendChild(header);
+        const btnNone = document.createElement('button');
+        btnNone.textContent = 'Aucun';
+        btnNone.style.cssText = 'font-size:0.75em;padding:2px 8px;cursor:pointer;border-radius:4px;border:1px solid;background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-secondary);';
 
-      const row = document.createElement('div');
-      row.className = 'tag-row';
+        header.appendChild(title);
+        header.appendChild(btnAll);
+        header.appendChild(btnNone);
+        wrapper.appendChild(header);
 
-      const uniqueValues = [...new Set(records.flatMap(r => cleanVal(r[col])))];
-      if (!selectedTags[col]) selectedTags[col] = [];
+        const row = document.createElement('div');
+        row.className = 'tag-row';
 
-      const updateBtnStyles = () => {
-        const allSelected = uniqueValues.every(v => selectedTags[col].includes(v));
-        const noneSelected = selectedTags[col].length === 0;
-        btnAll.style.fontWeight = allSelected ? '600' : '400';
-        btnAll.style.opacity = allSelected ? '1' : '0.6';
-        btnNone.style.fontWeight = noneSelected ? '600' : '400';
-        btnNone.style.opacity = noneSelected ? '1' : '0.6';
-      };
+        const uniqueValues = [...new Set(allRecords.flatMap(r => cleanVal(r[col])))];
+        if (!selectedTags[col]) selectedTags[col] = [];
 
-      uniqueValues.forEach(val => {
-        const tag = document.createElement('span');
-        tag.className = 'tag';
-        tag.textContent = val;
-        if (selectedTags[col].includes(val)) tag.classList.add('active');
-        tag.addEventListener('click', () => {
-          if (selectedTags[col].includes(val)) {
-            selectedTags[col] = selectedTags[col].filter(v => v !== val);
-            tag.classList.remove('active');
-          } else {
-            selectedTags[col].push(val);
-            tag.classList.add('active');
-          }
+        const updateBtnStyles = () => {
+          const allSelected = uniqueValues.every(v => selectedTags[col].includes(v));
+          const noneSelected = selectedTags[col].length === 0;
+          btnAll.style.fontWeight = allSelected ? '600' : '400';
+          btnAll.style.opacity = allSelected ? '1' : '0.6';
+          btnNone.style.fontWeight = noneSelected ? '600' : '400';
+          btnNone.style.opacity = noneSelected ? '1' : '0.6';
+        };
+
+        uniqueValues.forEach(val => {
+          const tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = val;
+          if (selectedTags[col].includes(val)) tag.classList.add('active');
+          tag.addEventListener('click', () => {
+            if (selectedTags[col].includes(val)) {
+              selectedTags[col] = selectedTags[col].filter(v => v !== val);
+              tag.classList.remove('active');
+            } else {
+              selectedTags[col].push(val);
+              tag.classList.add('active');
+            }
+            updateBtnStyles();
+            applyFilters();
+          });
+          row.appendChild(tag);
+        });
+
+        btnAll.addEventListener('click', () => {
+          selectedTags[col] = [...uniqueValues];
+          row.querySelectorAll('.tag').forEach(t => t.classList.add('active'));
           updateBtnStyles();
           applyFilters();
         });
-        row.appendChild(tag);
-      });
 
-      btnAll.addEventListener('click', () => {
-        selectedTags[col] = [...uniqueValues];
-        row.querySelectorAll('.tag').forEach(t => t.classList.add('active'));
+        btnNone.addEventListener('click', () => {
+          selectedTags[col] = [];
+          row.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+          updateBtnStyles();
+          applyFilters();
+        });
+
         updateBtnStyles();
-        applyFilters();
-      });
+        wrapper.appendChild(row);
+        container.appendChild(wrapper);
 
-      btnNone.addEventListener('click', () => {
-        selectedTags[col] = [];
-        row.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
-        updateBtnStyles();
-        applyFilters();
-      });
+      } else if (type === 'select') {
+        const label = selectColumns[col];
+        if (!label) return;
 
-      updateBtnStyles();
-      wrapper.appendChild(row);
-      tagContainer.appendChild(wrapper);
-    });
-  }
+        const wrapper = document.createElement('div');
+        wrapper.className = 'filter-card';
 
-  function renderSelects(records) {
-    selectContainer.innerHTML = '';
-    selectEls = {};
+        const title = document.createElement('div');
+        title.className = 'filter-title';
+        title.textContent = label;
 
-    const selectOrder = columnsOrder.filter(o => o.type === 'select');
+        const select = document.createElement('select');
+        select.className = 'filter-multi';
+        select.appendChild(new Option('— Tous —', ''));
 
-    selectOrder.forEach(({ col }) => {
-      const label = selectColumns[col];
-      if (!label) return;
+        const counts = countValues(allRecords, col);
+        Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .forEach(([val, count]) => select.appendChild(new Option(`${val} (${count})`, val)));
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'filter-card';
-
-      const title = document.createElement('div');
-      title.className = 'filter-title';
-      title.textContent = label;
-
-      const select = document.createElement('select');
-      select.className = 'filter-multi';
-      select.appendChild(new Option('— Tous —', ''));
-
-      const counts = countValues(records, col);
-      Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([val, count]) => select.appendChild(new Option(`${val} (${count})`, val)));
-
-      select.addEventListener('change', applyFilters);
-      wrapper.appendChild(title);
-      wrapper.appendChild(select);
-      selectContainer.appendChild(wrapper);
-      selectEls[col] = select;
-    });
-  }
-
-
-  // ✅ Une seule définition de applyFilters, avec cleanVal
-  function applyFilters() {
-    let filtered = [...allRecords];
-
-    Object.keys(selectedTags).forEach(col => {
-      const vals = selectedTags[col];
-      if (vals && vals.length > 0) {
-        filtered = filtered.filter(r => cleanVal(r[col]).some(v => vals.includes(v)));
+        select.addEventListener('change', applyFilters);
+        wrapper.appendChild(title);
+        wrapper.appendChild(select);
+        container.appendChild(wrapper);
+        selectEls[col] = select;
       }
     });
-
-    Object.keys(selectEls).forEach(col => {
-      const val = selectEls[col]?.value;
-      if (val) {
-        filtered = filtered.filter(r => cleanVal(r[col]).includes(val));
-      }
-    });
-
-    const search = globalSearch.value.toLowerCase().trim();
-    if (search) {
-      filtered = filtered.filter(r =>
-        Object.values(r).some(v => {
-          if (!v) return false;
-          if (Array.isArray(v)) return v.some(x => String(x).toLowerCase().includes(search));
-          return String(v).toLowerCase().includes(search);
-        })
-      );
-    }
-
-    resultsCount.textContent = `🔢 Résultats: ${filtered.length}`;
-    grist.setSelectedRows(filtered.map(r => r.id));
-    updateDisabledOptions(filtered);
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      selectedTags, selectEls: serializeSelects(), visibleFilters
-    }));
   }
 
   function updateDisabledOptions(filtered) {
+    const container = document.getElementById('filters-container');
+
     Object.keys(tagColumns).forEach(col => {
       const counts = countValues(filtered, col);
-      tagContainer.querySelectorAll('.tag-group').forEach(group => {
+      container.querySelectorAll('.tag-group').forEach(group => {
         if (group.querySelector('.tag-title')?.textContent !== tagColumns[col]) return;
         group.querySelectorAll('.tag').forEach(tag => {
           tag.classList.toggle('disabled', !counts[tag.textContent]);
@@ -290,19 +251,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateFilterVisibility() {
-    tagContainer.style.display = visibleFilters.tags ? 'block' : 'none';
+    const container = document.getElementById('filters-container');
 
-    // Visibilité des groupes de tags individuels
-    tagContainer.querySelectorAll('.tag-group').forEach(group => {
+    container.querySelectorAll('.tag-group').forEach(group => {
       const groupLabel = group.querySelector('.tag-title')?.textContent;
-      const col = Object.entries(tagColumns).find(([_, label]) => label === groupLabel)?.[0];
+      const col = Object.entries(tagColumns).find(([_, l]) => l === groupLabel)?.[0];
       if (col) group.style.display = visibleFilters[col] !== false ? 'block' : 'none';
     });
 
-    // Visibilité des selects
-    document.querySelectorAll('.filter-card').forEach(card => {
+    container.querySelectorAll('.filter-card').forEach(card => {
       const titleText = card.querySelector('.filter-title')?.textContent;
-      const col = Object.entries(selectColumns).find(([_, label]) => label === titleText)?.[0];
+      const col = Object.entries(selectColumns).find(([_, l]) => l === titleText)?.[0];
       if (col) card.style.display = visibleFilters[col] !== false ? 'block' : 'none';
     });
 
@@ -436,11 +395,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  resetButton.addEventListener('click', () => {
+    resetButton.addEventListener('click', () => {
     selectedTags = {};
     Object.values(selectEls).forEach(sel => sel.value = '');
     globalSearch.value = '';
-    renderTags(allRecords);
+    applyOrder(); // ✅ au lieu de renderTags + renderSelects séparément
     applyFilters();
   });
 
