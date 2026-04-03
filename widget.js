@@ -436,6 +436,8 @@ function applyFilters() {
   grist.ready({ requiredAccess: 'full', allowSelectBy: true });
 
   grist.onRecords(async (records) => {
+    console.log('Premier enregistrement brut :', JSON.stringify(records[0]));
+  // ... reste du code
     allRecords = records;
     tagColumns = {};
     selectColumns = {};
