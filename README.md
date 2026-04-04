@@ -37,7 +37,7 @@ Le widget détecte automatiquement les colonnes de type `Choice`, `ChoiceList`, 
 
 ## Exemple d'utilisation
 
-[Base de données des outils](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) produit par l'atelier de la donnée [DataLyStE](https://datalyste.universite-lyon.fr/). 
+[Base de données des outils](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) (en cours de création) produit par l'atelier de la donnée [DataLyStE](https://datalyste.universite-lyon.fr/). 
 
 
 ---------------------------------------------------------------
@@ -127,4 +127,4 @@ Here is an example of how to configure and use the widget:
 
 ## Use case
 
-[Tools database](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) produced by[DataLyStE](https://datalyste.universite-lyon.fr/). 
+[Tools database](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) (currently being created) produced by[DataLyStE](https://datalyste.universite-lyon.fr/). 
