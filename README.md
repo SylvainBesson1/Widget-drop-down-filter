@@ -1,4 +1,4 @@
-# 🇫🇷  Widget de Filtres avancés pour Grist
+# 🇫🇷  Widget de filtres avancés pour Grist
 
 Ce widget permet d'ajouter des filtres dynamiques et personnalisables à vos documents Grist. Il offre une interface intuitive pour filtrer les données en utilisant des listes déroulantes et des tags.
 
@@ -49,7 +49,7 @@ Le widget détecte automatiquement les colonnes de type `Choice`, `ChoiceList`, 
 
 
 
-# 🇬🇧  Advanced Filters Widget for Grist
+# 🇬🇧  Advanced filters widget for Grist
 
 This widget allows you to add dynamic and customizable filters to your Grist documents. It provides an intuitive interface for filtering data using dropdown lists and tags.
 
