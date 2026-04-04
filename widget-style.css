@@ -1,104 +1,247 @@
-body { background: #f3f4f6; font-family: sans-serif; padding: 20px; }
-#filters-actions { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
-#results-count { font-weight:600; margin-left:auto; }
+/* Style global pour le corps de la page */
+body {
+  background: #f3f4f6; /* Couleur de fond claire pour un aspect moderne */
+  font-family: sans-serif; /* Police sans empattement pour une meilleure lisibilité */
+  padding: 20px; /* Espacement interne pour éviter que le contenu ne colle aux bords */
+}
 
-#filters-container { display:flex; flex-direction:column; gap:12px; }
+/* Style pour le conteneur des actions de filtrage (boutons, recherche, etc.) */
+#filters-actions {
+  display: flex; /* Utilise Flexbox pour un alignement horizontal */
+  gap: 10px; /* Espacement entre les éléments enfants */
+  align-items: center; /* Aligne verticalement les éléments au centre */
+  margin-bottom: 10px; /* Espacement en bas pour séparer des autres éléments */
+}
 
-.tag-group { margin-bottom:8px; }
-.tag-title { font-weight:600; font-size:13px; margin-bottom:4px; color:#374151; }
-.tag-row { display:flex; flex-wrap:wrap; gap:6px; }
-.tag { padding:5px 12px; border-radius:999px; background:#eef2ff; color:#3730a3; cursor:pointer; font-size:12px; transition: all 0.2s; }
-.tag:hover { background:#c7d2fe; transform:translateY(-1px); }
-.tag.active { background:linear-gradient(135deg,#3b82f6,#6366f1); color:white; box-shadow:0 4px 10px rgba(59,130,246,0.3); }
-.tag.disabled { opacity:0.4; pointer-events:none; }
+/* Style pour le compteur de résultats */
+#results-count {
+  font-weight: 600; /* Texte en gras pour une meilleure visibilité */
+  margin-left: auto; /* Pousse le compteur à droite dans le conteneur flex */
+}
 
-#dynamic-filters { display:flex; flex-wrap:wrap; gap:12px; }
+/* Style pour le conteneur principal des filtres */
+#filters-container {
+  display: flex; /* Utilise Flexbox pour organiser les enfants verticalement */
+  flex-direction: column; /* Direction verticale pour les enfants */
+  gap: 12px; /* Espacement entre les enfants */
+}
+
+/* Style pour les groupes de tags */
+.tag-group {
+  margin-bottom: 8px; /* Espacement en bas pour séparer des autres groupes */
+}
+
+/* Style pour le titre des groupes de tags */
+.tag-title {
+  font-weight: 600; /* Texte en gras */
+  font-size: 13px; /* Taille de police légèrement réduite */
+  margin-bottom: 4px; /* Espacement en bas pour séparer du contenu */
+  color: #374151; /* Couleur de texte gris foncé pour un bon contraste */
+}
+
+/* Style pour les lignes de tags */
+.tag-row {
+  display: flex; /* Utilise Flexbox pour organiser les tags horizontalement */
+  flex-wrap: wrap; /* Permet aux tags de passer à la ligne si nécessaire */
+  gap: 6px; /* Espacement entre les tags */
+}
+
+/* Style pour les tags individuels */
+.tag {
+  padding: 5px 12px; /* Espacement interne pour un aspect confortable */
+  border-radius: 999px; /* Bordure arrondie pour un aspect "pill" */
+  background: #eef2ff; /* Fond bleu clair */
+  color: #3730a3; /* Texte bleu foncé pour un bon contraste */
+  cursor: pointer; /* Curseur en forme de main pour indiquer que c'est cliquable */
+  font-size: 12px; /* Taille de police réduite */
+  transition: all 0.2s; /* Animation fluide pour les changements d'état */
+}
+
+/* Style pour le survol des tags */
+.tag:hover {
+  background: #c7d2fe; /* Fond bleu plus clair au survol */
+  transform: translateY(-1px); /* Légère élévation pour un effet 3D */
+}
+
+/* Style pour les tags actifs (sélectionnés) */
+.tag.active {
+  background: linear-gradient(135deg, #3b82f6, #6366f1); /* Dégradé bleu pour un effet moderne */
+  color: white; /* Texte blanc pour un bon contraste */
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); /* Ombre pour un effet de profondeur */
+}
+
+/* Style pour les tags désactivés (non disponibles) */
+.tag.disabled {
+  opacity: 0.4; /* Réduit l'opacité pour indiquer la désactivation */
+  pointer-events: none; /* Désactive les interactions */
+}
+
+/* Style pour le conteneur des filtres dynamiques (selects) */
+#dynamic-filters {
+  display: flex; /* Utilise Flexbox pour organiser les enfants horizontalement */
+  flex-wrap: wrap; /* Permet aux enfants de passer à la ligne si nécessaire */
+  gap: 12px; /* Espacement entre les enfants */
+}
+
+/* Style pour les cartes de filtres (conteneurs des selects) */
 .filter-card {
-  background: white;
-  border-radius: 14px;
-  padding: 10px;
-  min-width: 160px;
-  max-width: 320px;
-  width: fit-content;
-  flex: 1 1 auto;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-  transition: all 0.2s ease;
+  background: white; /* Fond blanc */
+  border-radius: 14px; /* Coins arrondis */
+  padding: 10px; /* Espacement interne */
+  min-width: 160px; /* Largeur minimale */
+  max-width: 320px; /* Largeur maximale */
+  width: fit-content; /* Largeur ajustée au contenu */
+  flex: 1 1 auto; /* Permet une croissance flexible */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06); /* Ombre légère pour un effet de profondeur */
+  transition: all 0.2s ease; /* Animation fluide pour les changements d'état */
 }
-.filter-card:hover { transform:translateY(-2px); }
-.filter-title { font-size:12px; font-weight:600; margin-bottom:6px; color:#6b7280; }
 
+/* Effet de survol pour les cartes de filtres */
+.filter-card:hover {
+  transform: translateY(-2px); /* Légère élévation pour un effet 3D */
+}
+
+/* Style pour le titre des cartes de filtres */
+.filter-title {
+  font-size: 12px; /* Taille de police réduite */
+  font-weight: 600; /* Texte en gras */
+  margin-bottom: 6px; /* Espacement en bas pour séparer du contenu */
+  color: #6b7280; /* Couleur de texte gris moyen */
+}
+
+/* Style pour les éléments select multiples */
 .filter-multi {
-  width: 100%;
-  max-width: 100%;
-  height: 110px;
-  border-radius: 10px;
-  border: none;
-  background: #f9fafb;
-  padding: 6px;
-  font-size: 12px;
-  overflow-x: auto;
-  white-space: nowrap;
+  width: 100%; /* Largeur maximale */
+  max-width: 100%; /* Largeur maximale */
+  height: 110px; /* Hauteur fixe pour permettre le défilement */
+  border-radius: 10px; /* Coins arrondis */
+  border: none; /* Pas de bordure */
+  background: #f9fafb; /* Fond gris très clair */
+  padding: 6px; /* Espacement interne */
+  font-size: 12px; /* Taille de police réduite */
+  overflow-x: auto; /* Défilement horizontal si nécessaire */
+  white-space: nowrap; /* Empêche le retour à la ligne */
 }
-.filter-multi option { padding:4px; border-radius:6px; }
-.filter-multi option:checked { background:#3b82f6; color:white; }
 
-#global-search { padding:8px 12px; border-radius:12px; border:none; background:white; box-shadow:inset 0 0 0 1px #e5e7eb; font-size:14px; transition:0.2s; }
-#global-search:focus { box-shadow:inset 0 0 0 2px #3b82f6; }
+/* Style pour les options des selects */
+.filter-multi option {
+  padding: 4px; /* Espacement interne */
+  border-radius: 6px; /* Coins légèrement arrondis */
+}
 
-button { border-radius:12px; padding:8px 14px; font-weight:600; font-size:13px; border:none; cursor:pointer; transition:all 0.2s ease; }
-#apply-filters { background:linear-gradient(135deg,#3b82f6,#6366f1); color:white; box-shadow:0 4px 12px rgba(59,130,246,0.3); }
-#apply-filters:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(59,130,246,0.4); }
-#reset-filters { background:#f3f4f6; color:#374151; }
+/* Style pour les options sélectionnées */
+.filter-multi option:checked {
+  background: #3b82f6; /* Fond bleu */
+  color: white; /* Texte blanc */
+}
+
+/* Style pour le champ de recherche globale */
+#global-search {
+  padding: 8px 12px; /* Espacement interne */
+  border-radius: 12px; /* Coins arrondis */
+  border: none; /* Pas de bordure */
+  background: white; /* Fond blanc */
+  box-shadow: inset 0 0 0 1px #e5e7eb; /* Bordure subtile */
+  font-size: 14px; /* Taille de police standard */
+  transition: 0.2s; /* Animation fluide pour les changements d'état */
+}
+
+/* Style pour le champ de recherche globale au focus */
+#global-search:focus {
+  box-shadow: inset 0 0 0 2px #3b82f6; /* Bordure bleue au focus */
+}
+
+/* Style de base pour les boutons */
+button {
+  border-radius: 12px; /* Coins arrondis */
+  padding: 8px 14px; /* Espacement interne */
+  font-weight: 600; /* Texte en gras */
+  font-size: 13px; /* Taille de police légèrement réduite */
+  border: none; /* Pas de bordure */
+  cursor: pointer; /* Curseur en forme de main */
+  transition: all 0.2s ease; /* Animation fluide pour les changements d'état */
+}
+
+/* Style pour le bouton "Appliquer les filtres" */
+#apply-filters {
+  background: linear-gradient(135deg, #3b82f6, #6366f1); /* Dégradé bleu */
+  color: white; /* Texte blanc */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* Ombre pour un effet de profondeur */
+}
+
+/* Effet de survol pour le bouton "Appliquer les filtres" */
+#apply-filters:hover {
+  transform: translateY(-2px); /* Légère élévation */
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.4); /* Ombre plus marquée */
+}
+
+/* Style pour le bouton "Réinitialiser les filtres" */
+#reset-filters {
+  background: #f3f4f6; /* Fond gris clair */
+  color: #374151; /* Texte gris foncé */
+}
+
+/* Effet de survol pour le bouton "Réinitialiser les filtres" */
 #reset-filters:hover {
-  background-color: #2563eb;
-  transform: translateY(-1px);
+  background-color: #2563eb; /* Fond bleu au survol */
+  transform: translateY(-1px); /* Légère élévation */
 }
+
+/* Style pour la modale (fenêtre de dialogue) */
 .modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
+  display: none; /* Masquée par défaut */
+  position: fixed; /* Position fixe par rapport à la fenêtre */
+  top: 0; /* Position en haut */
+  left: 0; /* Position à gauche */
+  width: 100%; /* Largeur maximale */
+  height: 100%; /* Hauteur maximale */
+  background: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+  z-index: 1000; /* Position au-dessus des autres éléments */
+  justify-content: center; /* Centre horizontalement */
+  align-items: center; /* Centre verticalement */
 }
 
+/* Style pour le contenu de la modale */
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 80%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
+  background: white; /* Fond blanc */
+  padding: 20px; /* Espacement interne */
+  border-radius: 12px; /* Coins arrondis */
+  width: 80%; /* Largeur relative */
+  max-width: 600px; /* Largeur maximale */
+  max-height: 80vh; /* Hauteur maximale */
+  overflow-y: auto; /* Défilement vertical si nécessaire */
 }
 
+/* Style pour les groupes de cases à cocher */
 .checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: flex; /* Utilise Flexbox pour organiser les enfants verticalement */
+  flex-direction: column; /* Direction verticale */
+  gap: 8px; /* Espacement entre les enfants */
 }
 
+/* Style pour les éléments de case à cocher */
 .checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; /* Utilise Flexbox pour organiser les enfants horizontalement */
+  align-items: center; /* Alignement vertical au centre */
+  gap: 8px; /* Espacement entre les enfants */
 }
 
+/* Style pour les cases à cocher */
 .checkbox-item input[type="checkbox"] {
-  margin: 0;
+  margin: 0; /* Pas de marg */
 }
 
+/* Style pour les libellés des cases à cocher */
 .checkbox-item label {
-  font-size: 14px;
-  color: #374151;
-  cursor: pointer;
+  font-size: 14px; /* Taille de police standard */
+  color: #374151; /* Couleur de texte gris foncé */
+  cursor: pointer; /* Curseur en forme de main */
 }
+
+/* Style pour les grandes flèches (émojis) */
 .large-arrow {
-  font-size: 1.1m; /* Ajustez cette valeur pour changer la taille de l'émoji */
-  vertical-align: middle; /* Aligne correctement l'émoji avec le texte */
-  margin-right: 5px;
+  font-size: 1.1em; /* Taille légèrement augmentée */
+  vertical-align: middle; /* Alignement vertical */
+  margin-right: 5px; /* Espacement à droite */
 }
+
