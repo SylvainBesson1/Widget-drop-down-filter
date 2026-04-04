@@ -35,6 +35,9 @@ https://sylvainbesson1.github.io/Widget-drop-down-filter/
 
 Le widget détecte automatiquement les colonnes de type `Choice`, `ChoiceList`, `Reference` et `ReferenceList`. 
 
+## Exemple d'utilisation
+
+[Base de données des outils](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) produit par l'atelier de la donnée [DataLyStE](https://datalyste.universite-lyon.fr/). 
 
 
 ---------------------------------------------------------------
@@ -121,3 +124,7 @@ Here is an example of how to configure and use the widget:
 - **Console errors**: Check the error messages to identify and fix issues.
 
 ---
+
+## Use case
+
+[Tools database](https://grist.numerique.gouv.fr/o/docs/mjRH56o7CwaC/Base-de-donnees-des-outils) produced by[DataLyStE](https://datalyste.universite-lyon.fr/). 
