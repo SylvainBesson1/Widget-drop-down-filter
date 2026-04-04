@@ -1,0 +1,1 @@
+Auteur: Sylvain Besson (MSH Lyon Saint-Étienne, CNRS) avec l'aide de l'agent conversationnel Mistral.

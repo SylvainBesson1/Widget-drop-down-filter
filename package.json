@@ -1,19 +1,19 @@
 {
-  "name": "@SylvainBesson1/widget-drop-down-filter",
-  "description": "Simple drop-down widget to filter other wigets.",
+  "name": "@sylvainbesson1/Widget-Advanced-Filter",
+  "description": "Grist widget to display filter menu with several options from a column to filter other widget with the selected option.",
   "homePage": "https://github.com/SylvainBesson1/Widget-drop-down-filter",
-  "version": "0.1",
+  "version": "1.0",
   "grist": {
     "name": "Drop-down Widget",
-    "url": "https://sylvainbesson1.github.io/Widget-drop-down-filter/index.html",
-    "widgetId": "@sylvainbesson1/widget-drop-down-filter",
+    "url": "https://sylvainbesson1.github.io/Widget-Advanced-Filter/index.html",
+    "widgetId": "@sylvainbesson1/Widget-Advanced-Filter",
     "published": true,
     "accessLevel": "full",
     "renderAfterReady": true,
-    "description": "Display a drop-down menu with options from a column to filter other widget with the selected option.",
+    "description": "Grist widget to display filter menu with several options from a column to filter other widget with the selected option.",
     "authors": [
       {
-        "name": "SylvainBesson1",
+        "name": "Sylvain Besson",
         "url": "https://github.com/SylvainBesson1"
       }
     ],
